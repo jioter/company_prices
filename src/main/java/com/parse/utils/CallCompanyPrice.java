@@ -18,7 +18,7 @@ public class CallCompanyPrice implements Callable<String> {
 
     @SneakyThrows
     @Override
-    public String call() throws Exception {
+    public String call() {
         URL url = new URL("https://cloud.iexapis.com/"
             + "stable/stock/" + symbol + "/quote/latestPrice?token=" + token);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -27,7 +27,7 @@ public class CallCompanyPrice implements Callable<String> {
         BufferedReader in = new BufferedReader(
             new InputStreamReader(con.getInputStream()));
         String inputLine;
-        StringBuffer content = new StringBuffer();
+        StringBuilder content = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             content.append(inputLine);
         }
