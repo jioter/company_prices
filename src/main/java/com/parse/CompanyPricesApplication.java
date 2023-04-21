@@ -21,7 +21,7 @@ public class CompanyPricesApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         ParseDataService parseDataService = applicationContextProvider.getApplicationContext()
             .getBean(
                 ParseDataService.class);

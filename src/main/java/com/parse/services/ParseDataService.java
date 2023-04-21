@@ -68,10 +68,8 @@ public class ParseDataService {
         CompletionService<String> completionService =
             new ExecutorCompletionService<>(executor);
 
-        List<Future<String>> futureList = new ArrayList<>();
-
         for (String symbol : companiesSymbols) {
-            futureList.add(completionService.submit(new CallCompanyPrice(symbol)));
+            completionService.submit(new CallCompanyPrice(symbol));
         }
 
         int received = 0;

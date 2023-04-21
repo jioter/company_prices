@@ -9,7 +9,7 @@ import lombok.SneakyThrows;
 
 public class CallCompanyPrice implements Callable<String> {
     final String token = "pk_08ec385f33dd4525b67ebf1efc7ff89c";
-    private String symbol;
+    private final String symbol;
 
     public CallCompanyPrice(String symbol){
         this.symbol = symbol;
