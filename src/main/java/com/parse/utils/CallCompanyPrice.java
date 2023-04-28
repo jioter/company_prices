@@ -5,13 +5,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Callable;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 
+@AllArgsConstructor
 public class CallCompanyPrice implements Callable<String> {
-    final String token = "pk_08ec385f33dd4525b67ebf1efc7ff89c";
+
+    @Value("${iexapi.token}")
+    private String TOKEN;
+
+    @Value("${iexapi.url}")
+    private String URL;
+
     private final String symbol;
 
-    public CallCompanyPrice(String symbol){
+    public CallCompanyPrice(String symbol) {
         this.symbol = symbol;
     }
 
@@ -19,8 +28,7 @@ public class CallCompanyPrice implements Callable<String> {
     @SneakyThrows
     @Override
     public String call() {
-        URL url = new URL("https://cloud.iexapis.com/"
-            + "stable/stock/" + symbol + "/quote/latestPrice?token=" + token);
+        URL url = new URL(URL + "/stock/" + symbol + "/quote/latestPrice?token=" + TOKEN);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 

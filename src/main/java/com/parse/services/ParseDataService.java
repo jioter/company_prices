@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,12 +27,16 @@ public class ParseDataService {
 
     private final CompanyRepository companyRepository;
 
-    final String token = "pk_08ec385f33dd4525b67ebf1efc7ff89c";
+    @Value("${iexapi.token}")
+    private final String TOKEN;
+
+    @Value("${iexapi.url}")
+    private final String URL;
+
 
     @SneakyThrows
     public StringBuffer getCompaniesData() {
-        URL url = new URL("https://cloud.iexapis.com/"
-            + "stable/ref-data/iex/symbols?token=" + token);
+        URL url = new URL(URL + "/ref-data/iex/symbols?token=" + TOKEN);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
