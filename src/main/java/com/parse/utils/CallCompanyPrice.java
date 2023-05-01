@@ -1,45 +1,43 @@
 package com.parse.utils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import com.parse.config.AppConfigurations;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.Callable;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 
-@AllArgsConstructor
+@PropertySource("classpath:application.yaml")
+@RequiredArgsConstructor
 public class CallCompanyPrice implements Callable<String> {
 
-    @Value("${iexapi.token}")
-    private String TOKEN;
-
-    @Value("${iexapi.url}")
-    private String URL;
+    private final String eixApiURL;
 
     private final String symbol;
 
-    public CallCompanyPrice(String symbol) {
-        this.symbol = symbol;
-    }
+    private final String token;
+
+    private final AppConfigurations appConfigurations;
 
 
     @SneakyThrows
     @Override
     public String call() {
-        URL url = new URL(URL + "/stock/" + symbol + "/quote/latestPrice?token=" + TOKEN);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+        URL url = new URL(eixApiURL + "/stock/" + symbol + "/quote/latestPrice?token=" + token);
+        final var httpClient = appConfigurations.httpClient();
 
-        BufferedReader in = new BufferedReader(
-            new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder content = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-        }
-        in.close();
-        return content.toString();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url.toString()))
+            .GET()
+            .build();
+
+        return httpClient.sendAsync(request, BodyHandlers.ofString())
+            .thenApplyAsync(HttpResponse::body)
+            .join();
     }
+
 }

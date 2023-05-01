@@ -1,80 +1,84 @@
 package com.parse.services;
 
+import static com.parse.config.AppConfigurations.executor;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.parse.entities.Company;
+import com.parse.config.AppConfigurations;
+import com.parse.dto.CompanyDTO;
+import com.parse.entities.CompanyEntity;
 import com.parse.repository.CompanyRepository;
 import com.parse.utils.CallCompanyPrice;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@PropertySource("classpath:application.yaml")
 public class ParseDataService {
 
-    private final CompanyRepository companyRepository;
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Value("${iexapi.token}")
-    private final String TOKEN;
+    private String token;
 
     @Value("${iexapi.url}")
-    private final String URL;
+    private String eixApiURL;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    AppConfigurations appConfigurations;
 
     @SneakyThrows
-    public StringBuffer getCompaniesData() {
-        URL url = new URL(URL + "/ref-data/iex/symbols?token=" + TOKEN);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+    public CompanyDTO[] getCompaniesData() {
+        var url = new URL(eixApiURL + "/ref-data/iex/symbols?token=" + token);
+        final var httpClient = appConfigurations.httpClient();
 
-        BufferedReader in = new BufferedReader(
-            new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-        }
-        in.close();
-        return content;
+        var request = HttpRequest.newBuilder()
+            .uri(URI.create(url.toString()))
+            .GET()
+            .build();
+
+        final var response = httpClient.sendAsync(request, BodyHandlers.ofString())
+            .thenApplyAsync(HttpResponse::body)
+            .join();
+
+        return objectMapper.readValue(response, CompanyDTO[].class);
     }
 
     @SneakyThrows
-    public void processCompanies(StringBuffer symbolsObjects) {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        Company[] arrayOfCompanies = objectMapper.readValue(symbolsObjects.toString(),
-            Company[].class);
-        List<Company> listOfCompanies = Arrays.asList(arrayOfCompanies);
-        companyRepository.saveAll(listOfCompanies);
-        companyRepository.findAll();
+    public void saveAllCompanies(CompanyDTO[] companyDTOs) {
+        var entityList = mapCompanyDTOListToEntityList(companyDTOs);
+        companyRepository.saveAll(entityList);
     }
 
-    public List<String> getCompaniesSymbolsFromDB() {
+    public List<String> getAllCompanySymbols() {
         return companyRepository.findAllCompanySymbols();
     }
 
     @SneakyThrows
     public List<String> getCompanyPrices() {
-        final var companiesSymbols = getCompaniesSymbolsFromDB();
+        final var companiesSymbols = getAllCompanySymbols();
 
-        ExecutorService executor = Executors.newFixedThreadPool(100);
-        CompletionService<String> completionService =
-            new ExecutorCompletionService<>(executor);
+        var completionService = appConfigurations.executorService();
 
         for (String symbol : companiesSymbols) {
-            completionService.submit(new CallCompanyPrice(symbol));
+            completionService.submit(
+                new CallCompanyPrice(eixApiURL, symbol, token, appConfigurations));
         }
 
         int received = 0;
@@ -102,6 +106,16 @@ public class ParseDataService {
         }
         executor.shutdown();
         return result;
+    }
+
+    private List<CompanyEntity> mapCompanyDTOListToEntityList(CompanyDTO[] companyDTOs)
+        throws JsonProcessingException {
+        TypeReference<List<CompanyEntity>> entityListTypeRef = new TypeReference<>() {
+        };
+
+        var dtoListJson = objectMapper.writeValueAsString(companyDTOs);
+
+        return objectMapper.readValue(dtoListJson, entityListTypeRef);
     }
 
 }

@@ -26,7 +26,7 @@ public class CompanyPricesApplication implements CommandLineRunner {
             .getBean(
                 ParseDataService.class);
         final var companiesData = parseDataService.getCompaniesData();
-        parseDataService.processCompanies(companiesData);
+        parseDataService.saveAllCompanies(companiesData);
         System.out.println(companiesData);
 
         final var companyPrices = parseDataService.getCompanyPrices();

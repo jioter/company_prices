@@ -19,5 +19,5 @@ spring:
       order_inserts: true
 
 iexapi:
-  token: pk_08ec385f33dd4525b67ebf1efc7ff89c
+  token: pk_59afd45b2d7044ab8c0379cb39294f93
   url: https://cloud.iexapis.com/stable
