@@ -1,7 +1,6 @@
 package com.parse.job;
 
 import com.parse.dto.PriceDTO;
-import com.parse.entities.PriceEntity;
 import com.parse.services.ParseDataService;
 import java.util.Comparator;
 import java.util.stream.Collectors;
