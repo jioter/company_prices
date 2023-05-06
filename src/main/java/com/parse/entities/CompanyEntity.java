@@ -5,7 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +26,7 @@ public class CompanyEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "company_id")
     @EqualsAndHashCode.Exclude
-    private Long id;
+    private Long companyId;
 
     @Column(name = "date")
     private String date;
@@ -37,5 +39,10 @@ public class CompanyEntity {
 
     @Column(name = "company_name")
     private String name;
+
+    @OneToMany(mappedBy = "priceId")
+    @Column(name = "prices")
+    @EqualsAndHashCode.Exclude
+    private List<PriceEntity> prices;
 
 }

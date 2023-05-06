@@ -27,7 +27,7 @@ public class CallCompanyPrice implements Callable<String> {
     @SneakyThrows
     @Override
     public String call() {
-        URL url = new URL(eixApiURL + "/stock/" + symbol + "/quote/latestPrice?token=" + token);
+        URL url = new URL(eixApiURL + "/stock/" + symbol + "/quote?token=" + token);
         final var httpClient = appConfigurations.httpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
