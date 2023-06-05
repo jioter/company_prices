@@ -1,17 +1,16 @@
 version: '3'
 services:
-  app:
+  company-parse-app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - 8080:8080
     depends_on:
-      - db
-      
-
-
-  db:
+      - postgres-db
+    environment:
+      DATABASE_CONTAINER: postgres-db
+  postgres-db:
     image: postgres:latest
     environment:
       POSTGRES_DB: postgres
@@ -21,4 +20,3 @@ services:
       - ./db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
