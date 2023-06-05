@@ -1,4 +1,4 @@
-package com.parse;
+package test.java.com.parse;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

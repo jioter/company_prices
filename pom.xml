@@ -10,13 +10,16 @@
 	</parent>
 	<groupId>com</groupId>
 	<artifactId>company_prices</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>cp</name>
-	<description>cp</description>
+	<version>1</version>
+	<packaging>jar</packaging>
+	<name>company_prices</name>
+	<description>company_prices</description>
+
 	<properties>
 		<java.version>17</java.version>
 		<spring-boot.run.jvmArguments>-Duser.timezone=UTC</spring-boot.run.jvmArguments>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -57,15 +60,110 @@
 			<version>2.13.3</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-test</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>RELEASE</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>src/test</testSourceDirectory>
+
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>config</directory>
+				<targetPath>${project.build.outputDirectory}</targetPath>
+				<includes>
+					<include>application.yaml</include>
+					<include>**/*.yml</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<testResources>
+			<testResource>
+				<directory>test</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<executions>
+<!--						<execution>
+							<configuration>
+								<skip>true</skip>
+							</configuration>
+						</execution>-->
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+							<configuration>
+								<mainClass>com.parse.CompanyPricesApplication</mainClass>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+<!--				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven-compiler-plugin.version}</version>
+					<configuration>
+						<source>${maven.compiler.source}</source>
+						<target>${maven.compiler.target}</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					&lt;!&ndash; Build an executable JAR &ndash;&gt;
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<mainClass>com.parse.CompanyPricesApplication</mainClass>
+							</manifest>
+						</archive>
+					</configuration>
+				</plugin>-->
+			</plugins>
+		</pluginManagement>
+
 	</build>
 
 </project>
