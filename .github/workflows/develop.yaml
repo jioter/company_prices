@@ -12,18 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
-        with:
-          distribution: ubuntu
+        uses: actions/checkout@v3
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
-          distribution: ubuntu
           java-version: 17
       - name: Build with Maven
         run: mvn clean install
-        with:
-          distribution: ubuntu
+
 
   deploy:
     name: CD part
