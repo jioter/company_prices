@@ -42,6 +42,9 @@ jobs:
       # build
       - name: Build
         run: mvn clean install
+      # Create the ./bin/app directory
+      - name: Create bin/app directory
+        run: mkdir -p ./bin/app
       # copying appspec file
       - name: Copying appspec.yml
         run: cp appspec.yml ./bin/app
