@@ -47,6 +47,7 @@ jobs:
         run: cp appspec.yml ./bin/app
 
 
+
       # Install AWS CLI 2
       - name: Install AWS CLI 2
         run: |
