@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app-name: ['company-prices']
+        app-name: ['Company-prices']
         s3-bucket: ['company-prices-codedeploy-deployments-2']
         s3-filename: ['develop-aws-codedeploy-${{ github.sha }}']
         deploy-group: ['develop']

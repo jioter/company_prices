@@ -2,9 +2,9 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /opt/company_prices
+    destination: /opt/Company_prices
 permissions:
-  - object: /opt/company_prices
+  - object: /opt/Company_prices
     owner: ubuntu
     group: ubuntu
     type:
