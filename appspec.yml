@@ -11,15 +11,11 @@ permissions:
       - directory
       - file
 hooks:
-  BeforeInstall:
-    - location: scripts/stop-server.sh
+  ApplicationStart:
+    - location: scripts/start-server.sh
       timeout: 300
       runas: ubuntu
   ApplicationStop:
     - location: scripts/stop-server.sh
-      timeout: 300
-      runas: ubuntu
-  ApplicationStart:
-    - location: scripts/start-server.sh
       timeout: 300
       runas: ubuntu
