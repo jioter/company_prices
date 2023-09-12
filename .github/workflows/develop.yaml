@@ -67,8 +67,8 @@ jobs:
       - name: AWS Deploy push
         run: |
           aws deploy push \
-          --application-name company-prices \
-          --description "Revision of the company-prices-${{ github.sha }}" \
+          --application-name ${{ matrix.app-name }} \
+          --description "Revision of the ${{ matrix.app-name }}-${{ github.sha }}" \
           --ignore-hidden-files \
           --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
           --source ./bin/app
@@ -77,7 +77,7 @@ jobs:
       - name: Creating AWS Deployment
         run: |
           aws deploy create-deployment \
-          --application-name company-prices \
+          --application-name ${{ matrix.app-name }} \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --deployment-group-name ${{ matrix.deploy-group }} \
           --file-exists-behavior OVERWRITE \
