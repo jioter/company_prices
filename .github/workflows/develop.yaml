@@ -21,64 +21,69 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-  deploy:
-    name: CD part
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        app-name: ['Company-prices']
-        s3-bucket: ['company-prices-codedeploy-deployments-2']
-        s3-filename: ['develop-aws-codedeploy-${{ github.sha }}']
-        deploy-group: ['develop']
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-      # set up java
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-      # build
-      - name: Build
-        run: mvn clean install
-      # Create the ./bin/app directory
-      - name: Create bin/app directory
-        run: mkdir -p ./bin/app
-      # copying appspec file
-      - name: Copying appspec.yml
-        run: cp appspec.yml ./bin/app
+# deploy:
+#   name: CD part
+#   runs-on: ubuntu-latest
+#   strategy:
+#     matrix:
+#       app-name: ['Company-prices']
+#       s3-bucket: ['company-prices-codedeploy-deployments-2']
+#       s3-filename: ['develop-aws-codedeploy-${{ github.sha }}']
+#       deploy-group: ['develop']
+#   needs: build
+#   steps:
+#     - uses: actions/checkout@v3
+#     # Checkout the source code from the repository
 
-      # Install AWS CLI 2
-      - name: Install AWS CLI 2
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update
-      # Configure AWS credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+#     - name: Set up JDK 17
+#       uses: actions/setup-java@v3
+#       with:
+#         distribution: 'zulu'
+#         java-version: '17'
+#     # Set up Java 17 for building
 
-      # Deploy push to S3
-      - name: AWS Deploy push
-        run: |
-          aws deploy push \
-          --application-name ${{ matrix.app-name }} \
-          --description "Revision of the ${{ matrix.app-name }}-${{ github.sha }}" \
-          --ignore-hidden-files \
-          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
-          --source ./bin/app
+#     - name: Build
+#       run: mvn clean install
+#     # Clean and build the project using Maven
 
-      # Creating deployment via CodeDeploy
-      - name: Creating AWS Deployment
-        run: |
-          aws deploy create-deployment \
-          --application-name ${{ matrix.app-name }} \
-          --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name ${{ matrix.deploy-group }} \
-          --file-exists-behavior OVERWRITE \
-          --s3-location bucket=${{ matrix.s3-bucket }},key=${{ matrix.s3-filename }}.zip,bundleType=zip \
+#     - name: Create bin/app directory
+#       run: mkdir -p ./bin/app
+#     # Create the './bin/app' directory if it doesn't exist
+
+#     - name: Copying appspec.yml
+#       run: cp appspec.yml ./bin/app
+#     # Copy the 'appspec.yml' file to './bin/app' directory
+
+#     - name: Install AWS CLI 2
+#       run: |
+#         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+#         unzip awscliv2.zip
+#         sudo ./aws/install --update
+#     # Install AWS CLI version 2
+
+#     - name: Configure AWS Credentials
+#       uses: aws-actions/configure-aws-credentials@v1
+#       with:
+#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: us-east-1
+#     # Configure AWS credentials using secrets
+
+#     - name: AWS Deploy push
+#       run: |
+#         aws deploy push \
+#         --application-name ${{ matrix.app-name }} \
+#         --description "Revision of the ${{ matrix.app-name }}-${{ github.sha }}" \
+#         --ignore-hidden-files \
+#         --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-filename }}.zip \
+#         --source ./bin/app
+#     # Deploy to S3 using AWS CodeDeploy
+
+#     - name: Creating AWS Deployment
+#       run: |
+#         aws deploy create-deployment \
+#         --application-name ${{ matrix.app-name }} \
+#         --deployment-config-name CodeDeployDefault.AllAtOnce \
+#         --deployment-group-name ${{ matrix.deploy-group }} \
+#         --file-exists-behavior OVERWRITE \
+#         --s3-location bucket=${{ matrix.s3-bucket }},key=${{ matrix.s3-filename }}.zip,bundleType=zip \

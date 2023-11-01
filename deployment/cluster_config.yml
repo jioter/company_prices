@@ -1,0 +1,40 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: company-prices
+  region: us-east-1
+  version: "1.27"
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: company-prices-policy
+      attachPolicyARNs:
+        - "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+        - "arn:aws:iam::069774556847:policy/rds-connect"
+        - "arn:aws:iam::aws:policy/AdministratorAccess"
+
+vpc:
+  subnets:
+    public:
+      us-east-1a: { id: subnet-08b544e3e80bed577 }
+      us-east-1b: { id: subnet-0c88e64cf764d4e21 }
+    private:
+      us-east-1c: { id: subnet-03209286c2b07faaf }
+      us-east-1d: { id: subnet-0a6617aae40976630 }
+      us-east-1f: { id: subnet-037101ad78e3b0803 }
+
+managedNodeGroups:
+  - name: company-prices-ng
+    minSize: 1
+    maxSize: 1
+    desiredCapacity: 1
+    instanceType: t2.small
+    ssh:
+      enableSsm: true
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: [ "*" ]
